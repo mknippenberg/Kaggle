@@ -14,12 +14,12 @@ function [error_train, error_val] = ...
 %   datasets, you might want to do this in larger intervals.
 %
 
-% Number of training examples
-m = size(X, 1);
+% Number of buckets, each bucket will have 1000 more than the last
+buckets = 10;
 
 % You need to return these values correctly
-error_train = zeros(m, 1);
-error_val   = zeros(m, 1);
+error_train = zeros(buckets, 1);
+error_val   = zeros(buckets, 1);
 
 % ====================== YOUR CODE HERE ======================
 % Instructions: Fill in this function to return training errors in 
@@ -53,15 +53,15 @@ error_val   = zeros(m, 1);
 
 % ---------------------- Sample Solution ----------------------
 
-for i = 1:m
+for i = 1:buckets
 	% Find values for the theta parameters 
-	theta = trainLinearReg(X(1:i, :), y(1:i), lambda);
+	theta = trainLinearReg(X(1:(1000*i), :), y(1:(1000*i)), lambda);
 	% Compute cost on training set with values of theta
-	J_train = linearRegCostFunction(X(1:i, :), y(1:i), theta, 0);
+	J_train = costFunctionReg(theta, X(1:(1000*i), :), y(1:(1000*i)), 0);
 	% Store training error in the ith element of error_train
 	error_train(i) = J_train;
 	% Compute cost on entire validation set with values of theta
-	J_val = linearRegCostFunction(Xval, yval, theta, 0);
+	J_val = costFunctionReg(theta, Xval, yval, 0);
 	% Store validation error in the ith element of error_val
 	error_val(i) = J_val;
 

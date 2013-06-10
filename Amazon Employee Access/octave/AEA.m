@@ -117,3 +117,104 @@ fprintf('Train Accuracy: %f\n', mean(double(p == y)) * 100);
 fprintf('\nProgram paused. Press enter to continue.\n');
 pause;
 
+
+%% =========== Part 5: Learning Curve for Linear Regression =============
+%  Next, you should implement the learningCurve function. 
+%
+%
+
+% ~29000 training examples is too many iterate on!!!
+% Just use 1000 increments up to 10,000, 10 buckets
+buckets = 10;
+
+lambda = 1;
+[error_train, error_val] = ...
+    learningCurve(X, y, ...
+                  [ones(size(Xval, 1), 1) Xval], yval, ...
+                  lambda);
+
+plot(1:buckets, error_train, 1:buckets, error_val);
+title('Learning curve for linear regression')
+legend('Train', 'Cross Validation')
+xlabel('Number of training examples')
+ylabel('Error')
+axis([1 10 0 1])
+
+fprintf('# Training Examples\tTrain Error\tCross Validation Error\n');
+for i = 1:buckets
+    fprintf('  \t%d\t\t%f\t%f\n', i, error_train(i), error_val(i));
+end
+
+fprintf('Program paused. Press enter to continue.\n');
+pause;
+
+
+
+%% ========= Part 6: Precision & Recall =============
+%% The learning curve is very flat. The outcome variable is skewed.
+%% Need precision and recall to tell if the alogithm is improving or nor
+
+true_positives = 0;
+false_positives = 0;
+
+true_negative = 0;
+false_negative = 0;
+
+for i = 1:m
+
+	if p(i) == 1
+		if p(i) == y(i)
+			true_positives = true_positives + 1;
+		else
+			false_positives = false_positives + 1;
+		end
+	else
+		if p(i) == y(i)
+			true_negative = true_negative + 1;
+		else
+			false_negative = false_negative +1;
+
+		end
+	end
+end
+fprintf('True Positives: %f\n', true_positives);
+fprintf('False Positives: %f\n', false_positives);
+
+fprintf('True Negative: %f\n', true_negative);
+fprintf('False Negative: %f\n', false_negative);
+
+%% Precision: True Positives / # predicted positives
+%%            True Positives / (true positives + false positives)
+
+precision = (true_positives / (true_positives + false_positives));
+fprintf('Precision: %f\n', precision);
+
+%% Recall: True Positives / # actual positives
+%%         True Positives / (true pos + false neg)
+
+recall = (true_positives / (true_positives + false_negative));
+fprintf('Recall: %f\n', recall);
+
+
+F_score = ((2 * precision * recall) / (precision + recall));
+fprintf('F Score: %f\n', F_score);
+
+
+val_pred = predict(theta, [ones(size(Xval, 1), 1) Xval]);
+
+auc = scoreAUC(yval, val_pred);
+fprintf('AUC: %f\n', auc);
+
+%% ============== Compare on Test and Submit =================
+
+
+load('test.mat');
+
+
+Xtest = double(test(:,2:end)); id = double(test(:,1));
+
+output = predict(theta, [ones(size(Xtest, 1), 1) Xtest]);
+
+results = [id, output];
+csvwrite('final', results);
+
